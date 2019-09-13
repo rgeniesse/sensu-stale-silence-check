@@ -15,13 +15,13 @@ type Auth struct {
 	Refresh_token string
 }
 
-// type Metadata struct {
-// 	Name      string
-// 	Namespace string
-// }
+type Metadata struct {
+	Name      string `json:"name"`
+	Namespace string `json:"namespace"`
+}
 
 type Silenced struct {
-	// Metadata          Metadata
+	Metadata          Metadata
 	Expire            int    `json:"expire"`
 	Expire_on_resolve bool   `json:"expire_on_resolve"`
 	Creator           string `json:"creator"`
@@ -49,8 +49,8 @@ func getAuthToken() string {
 		panic(bleh)
 	}
 
-	fmt.Printf("%v\n", myauth)
-	fmt.Printf("%T\n", myauth)
+	// fmt.Printf("%v\n", myauth)
+	// fmt.Printf("%T\n", myauth)
 	return myauth.Access_token
 }
 
@@ -74,8 +74,15 @@ func querySilenced(token string) {
 	if bleh != nil {
 		panic(bleh)
 	}
-	fmt.Printf("%v\n", silenced)
-	fmt.Printf("%T\n", silenced)
+	// fmt.Printf("%v\n", silenced)
+	fmt.Printf("%v\n", silenced[0].Begin)
+	fmt.Printf("%v\n", silenced[0].Check)
+	fmt.Printf("%v\n", silenced[0].Creator)
+	fmt.Printf("%v\n", silenced[0].Expire)
+	fmt.Printf("%v\n", silenced[0].Expire_on_resolve)
+	fmt.Printf("%v\n", silenced[0].Subscription)
+	fmt.Printf("%v\n", silenced[0].Metadata.Name)
+	fmt.Printf("%v\n", silenced[0].Metadata.Namespace)
 }
 
 func main() {
