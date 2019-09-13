@@ -15,6 +15,21 @@ type Auth struct {
 	Refresh_token string
 }
 
+// type Metadata struct {
+// 	Name      string
+// 	Namespace string
+// }
+
+type Silenced struct {
+	// Metadata          Metadata
+	Expire            int    `json:"expire"`
+	Expire_on_resolve bool   `json:"expire_on_resolve"`
+	Creator           string `json:"creator"`
+	Check             string `json:"check"`
+	Subscription      string `json:"subscription"`
+	Begin             int    `json:"begin"`
+}
+
 func getAuthToken() string {
 
 	myauth := Auth{}
@@ -33,27 +48,38 @@ func getAuthToken() string {
 	if bleh != nil {
 		panic(bleh)
 	}
+
+	fmt.Printf("%v\n", myauth)
+	fmt.Printf("%T\n", myauth)
 	return myauth.Access_token
 }
 
 func querySilenced(token string) {
-	fmt.Println(token)
-	var bearer = "Bearer " + token
+
+	silenced := []Silenced{}
+	bearer := "Bearer " + token
+	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", "http://172.28.128.14:8080/api/core/v2/namespaces/default/silenced", nil)
 	req.Header.Add("Authorization", bearer)
-	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Println("Error on response.\n[ERRO] -", err)
 	}
-	body, _ := ioutil.ReadAll(resp.Body)
-	log.Println(string([]byte(body)))
+
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	bleh := json.Unmarshal([]byte(body), &silenced)
+
+	if bleh != nil {
+		panic(bleh)
+	}
+	fmt.Printf("%v\n", silenced)
+	fmt.Printf("%T\n", silenced)
 }
 
 func main() {
 	fmt.Println("requesting...")
 	token := getAuthToken()
 	querySilenced(token)
-	// fmt.Println("Scooby")
-	// fmt.Println(S)
 }
