@@ -1,9 +1,9 @@
 // Todo:
-// Add command line paremeter pass in threshold, API credentials, API host, and API port.
 // Add looping logic for silenced end points with more than one entry.
 // Add data structure to hold all endpoints found to be too old.
 // Make exit status based on if that data structure has entries or not.
 // Add check if silenced is empty as program crashes with empty array.
+// Add requirement for host, user and password as there are not defaults
 
 package main
 
@@ -15,6 +15,8 @@ import (
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 type Auth struct {
@@ -38,15 +40,67 @@ type Silenced struct {
 	Begin             int    `json:"begin"`
 }
 
-func getAuthToken() string {
+var (
+	username, password, host, port string
+	threshold                      int
+)
+
+func configureRootCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "sensu-stale-silence-check",
+		Short: "A Sensu Go check plugin to send out reminders about stale silenced entries",
+		RunE:  run,
+	}
+
+	cmd.Flags().StringVarP(&username,
+		"username",
+		"u",
+		os.Getenv("SENSU_API_USER"),
+		"A Sensu Go user with API access.")
+
+	cmd.Flags().StringVarP(&password,
+		"password",
+		"p",
+		os.Getenv("SENSU_API_PASSWORD"),
+		"A Sensu Go user's password.")
+
+	cmd.Flags().StringVarP(&host,
+		"host",
+		"H",
+		os.Getenv("SENSU_API_HOST"),
+		"The Sensu API host.")
+
+	cmd.Flags().StringVarP(&port,
+		"port",
+		"P",
+		"8080",
+		"The port the Sensu API is listening on.")
+
+	cmd.Flags().IntVarP(&threshold,
+		"threshold",
+		"t",
+		604800,
+		"Threshold in seconds to consider a silenced entry stale")
+
+	return cmd
+}
+
+func run(cmd *cobra.Command, args []string) error {
+	if len(args) != 0 {
+		_ = cmd.Help()
+		return fmt.Errorf("invalid argument(s) received")
+	}
+
+	return nil
+}
+
+func getAuthToken(username string, password string, host string, port string) string {
 
 	myauth := Auth{}
-	username := "admin"
-	passwd := "P@ssw0rd!"
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("GET", "http://172.28.128.15:8080/auth", nil)
-	req.SetBasicAuth(username, passwd)
+	req, err := http.NewRequest("GET", "http://"+host+":"+port+"/auth", nil)
+	req.SetBasicAuth(username, password)
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
@@ -57,8 +111,6 @@ func getAuthToken() string {
 		panic(bleh)
 	}
 
-	// fmt.Printf("%v\n", myauth)
-	// fmt.Printf("%T\n", myauth)
 	return myauth.Access_token
 }
 
@@ -83,13 +135,13 @@ func querySilenced(token string, silenced2 *[]Silenced) {
 	}
 }
 
-func checkIfSilencedOld(t int64, time_treshold int) {
+func checkIfSilencedOld(t int64, threshold int) {
 	n := time.Unix(t, 0)
 	fmt.Println(n)
 	duration := time.Since(n)
 	fmt.Println(duration.Seconds())
 
-	if int(duration.Seconds()) > time_treshold {
+	if int(duration.Seconds()) > threshold {
 		// Make a data structure that holds all the entries. Use that data structure
 		// to determine the exit status, otherwise program exits on first hit.
 		fmt.Println("This entry is old and was added to check result!")
@@ -100,22 +152,17 @@ func checkIfSilencedOld(t int64, time_treshold int) {
 }
 
 func main() {
-	fmt.Println("requesting...")
-	token := getAuthToken()
+	rootCmd := configureRootCommand()
+	if err := rootCmd.Execute(); err != nil {
+		log.Fatal(err.Error())
+	}
+
+	fmt.Println("Requesting Auth Token")
+	// fmt.Println(port)
+	token := getAuthToken(username, password, host, port)
 	silenced := []Silenced{}
 	querySilenced(token, &silenced)
-	time_treshold := 109000
 
-	// fmt.Printf("%v\n", silenced)
-	// fmt.Printf("%v\n", silenced[0].Begin)
-	// fmt.Printf("%v\n", silenced[0].Check)
-	// fmt.Printf("%v\n", silenced[0].Creator)
-	// fmt.Printf("%v\n", silenced[0].Expire)
-	// fmt.Printf("%v\n", silenced[0].Expire_on_resolve)
-	// fmt.Printf("%v\n", silenced[0].Subscription)
-	// fmt.Printf("%v\n", silenced[0].Metadata.Name)
-	// fmt.Printf("%v\n", silenced[0].Metadata.Namespace)
-
-	checkIfSilencedOld(int64(silenced[0].Begin), time_treshold)
+	checkIfSilencedOld(int64(silenced[0].Begin), threshold)
 
 }
