@@ -1,9 +1,5 @@
 // Todo:
-// Add looping logic for silenced end points with more than one entry.
 // Add data structure to hold all endpoints found to be too old.
-// Make exit status based on if that data structure has entries or not.
-// Add check if silenced is empty as program crashes with empty array.
-// Add requirement for host, user and password as there are not defaults
 
 package main
 
@@ -42,7 +38,7 @@ type Silenced struct {
 
 var (
 	username, password, host, port string
-	threshold                      int
+	threshold, timeout             int
 )
 
 func configureRootCommand() *cobra.Command {
@@ -57,18 +53,21 @@ func configureRootCommand() *cobra.Command {
 		"u",
 		os.Getenv("SENSU_API_USER"),
 		"A Sensu Go user with API access.")
+	cmd.MarkFlagRequired("username")
 
 	cmd.Flags().StringVarP(&password,
 		"password",
 		"p",
 		os.Getenv("SENSU_API_PASSWORD"),
 		"A Sensu Go user's password.")
+	cmd.MarkFlagRequired("password")
 
 	cmd.Flags().StringVarP(&host,
 		"host",
 		"H",
 		os.Getenv("SENSU_API_HOST"),
 		"The Sensu API host.")
+	cmd.MarkFlagRequired("host")
 
 	cmd.Flags().StringVarP(&port,
 		"port",
@@ -82,6 +81,12 @@ func configureRootCommand() *cobra.Command {
 		604800,
 		"Threshold in seconds to consider a silenced entry stale")
 
+	cmd.Flags().IntVarP(&timeout,
+		"timeout",
+		"T",
+		10,
+		"Time in seconds to consider the API unresponsive")
+
 	return cmd
 }
 
@@ -94,11 +99,11 @@ func run(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func getAuthToken(username string, password string, host string, port string) string {
+func getAuthToken() string {
 
 	myauth := Auth{}
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{Timeout: time.Duration(timeout) * time.Second}
 	req, err := http.NewRequest("GET", "http://"+host+":"+port+"/auth", nil)
 	req.SetBasicAuth(username, password)
 	resp, err := client.Do(req)
@@ -117,8 +122,8 @@ func getAuthToken(username string, password string, host string, port string) st
 func querySilenced(token string, silenced2 *[]Silenced) {
 
 	bearer := "Bearer " + token
-	client := &http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("GET", "http://172.28.128.15:8080/api/core/v2/namespaces/default/silenced", nil)
+	client := &http.Client{Timeout: time.Duration(timeout) * time.Second}
+	req, err := http.NewRequest("GET", "http://"+host+":"+port+"/api/core/v2/namespaces/default/silenced", nil)
 	req.Header.Add("Authorization", bearer)
 	resp, err := client.Do(req)
 	if err != nil {
@@ -135,7 +140,7 @@ func querySilenced(token string, silenced2 *[]Silenced) {
 	}
 }
 
-func checkIfSilencedOld(t int64, threshold int) {
+func checkIfSilencedOld(t int64, threshold int, silenced3 *[]Silenced) {
 	n := time.Unix(t, 0)
 	fmt.Println(n)
 	duration := time.Since(n)
@@ -145,7 +150,6 @@ func checkIfSilencedOld(t int64, threshold int) {
 		// Make a data structure that holds all the entries. Use that data structure
 		// to determine the exit status, otherwise program exits on first hit.
 		fmt.Println("This entry is old and was added to check result!")
-		os.Exit(1)
 	} else {
 		fmt.Println("Entry was not added to check result")
 	}
@@ -158,11 +162,20 @@ func main() {
 	}
 
 	fmt.Println("Requesting Auth Token")
-	// fmt.Println(port)
-	token := getAuthToken(username, password, host, port)
+	token := getAuthToken()
 	silenced := []Silenced{}
 	querySilenced(token, &silenced)
+	if len(silenced) > 0 {
+		for i := 0; i < len(silenced); i++ {
 
-	checkIfSilencedOld(int64(silenced[0].Begin), threshold)
+			fmt.Println(silenced[i])
+			checkIfSilencedOld(int64(silenced[i].Begin), threshold, &silenced)
+
+		}
+		os.Exit(1)
+	} else {
+		fmt.Println("Silenced endpoint is empty!")
+		os.Exit(0)
+	}
 
 }
