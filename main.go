@@ -140,18 +140,31 @@ func querySilenced(token string, silenced2 *[]Silenced) {
 	}
 }
 
-func checkIfSilencedOld(t int64, threshold int, silenced3 *[]Silenced) {
-	n := time.Unix(t, 0)
-	fmt.Println(n)
-	duration := time.Since(n)
-	fmt.Println(duration.Seconds())
+func checkIfSilencedOld(silenced3 []Silenced) {
 
-	if int(duration.Seconds()) > threshold {
-		// Make a data structure that holds all the entries. Use that data structure
-		// to determine the exit status, otherwise program exits on first hit.
-		fmt.Println("This entry is old and was added to check result!")
+	fmt.Println(silenced3[0].Begin)
+	fmt.Printf("%T\n", silenced3)
+	fmt.Println(silenced3)
+
+	if len(silenced3) > 0 {
+		for i := 0; i < len(silenced3); i++ {
+			n := time.Unix(int64(silenced3[i].Begin), 0)
+			duration := time.Since(n)
+
+			fmt.Println(silenced3[i])
+			if int(duration.Seconds()) > threshold {
+				// Make a data structure that holds all the entries. Use that data structure
+				// to determine the exit status, otherwise program exits on first hit.
+				fmt.Println("This entry is old and was added to check result!")
+			} else {
+				fmt.Println("Entry was not added to check result")
+			}
+
+		}
+		os.Exit(1)
 	} else {
-		fmt.Println("Entry was not added to check result")
+		fmt.Println("Silenced endpoint is empty!")
+		os.Exit(0)
 	}
 }
 
@@ -164,18 +177,8 @@ func main() {
 	fmt.Println("Requesting Auth Token")
 	token := getAuthToken()
 	silenced := []Silenced{}
+	fmt.Printf("%T\n", silenced)
 	querySilenced(token, &silenced)
-	if len(silenced) > 0 {
-		for i := 0; i < len(silenced); i++ {
-
-			fmt.Println(silenced[i])
-			checkIfSilencedOld(int64(silenced[i].Begin), threshold, &silenced)
-
-		}
-		os.Exit(1)
-	} else {
-		fmt.Println("Silenced endpoint is empty!")
-		os.Exit(0)
-	}
+	checkIfSilencedOld(silenced)
 
 }
