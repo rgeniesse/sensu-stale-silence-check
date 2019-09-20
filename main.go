@@ -1,3 +1,6 @@
+// TODO:
+// Comment code
+
 package main
 
 import (
@@ -107,10 +110,10 @@ func getAuthToken() string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	bleh := json.NewDecoder(resp.Body).Decode(&myauth)
+	err2 := json.NewDecoder(resp.Body).Decode(&myauth)
 
-	if bleh != nil {
-		panic(bleh)
+	if err2 != nil {
+		log.Fatal(err2)
 	}
 
 	return myauth.Access_token
@@ -124,16 +127,19 @@ func querySilenced(token string, silenced2 *[]Silenced) {
 	req.Header.Add("Authorization", bearer)
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Println("Error on response.\n[ERRO] -", err)
+		log.Fatal(err)
 	}
 
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	bleh := json.Unmarshal([]byte(body), silenced2)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err2 := json.Unmarshal([]byte(body), silenced2)
 
-	if bleh != nil {
-		panic(bleh)
+	if err2 != nil {
+		log.Fatal(err)
 	}
 }
 
@@ -143,13 +149,35 @@ func checkIfSilencedOld(silenced3 []Silenced) {
 		for i := 0; i < len(silenced3); i++ {
 			n := time.Unix(int64(silenced3[i].Begin), 0)
 			duration := time.Since(n)
+			not_too_old := "An entry for "
+
+			fmt.Println(n)
 
 			if int(duration.Seconds()) > threshold && silenced3[i].Expire == int(-1) && !silenced3[i].Expire_on_resolve {
-				// Need better output here that calls out entity and silence information
-				fmt.Println("This entry is old and was added to check result!")
-				// split into more conditionals so the proper message is printed or logged.
-			} else if int(duration.Seconds()) < threshold || silenced3[i].Expire != int(-1) || silenced3[i].Expire_on_resolve {
-				fmt.Println("Entry was not added to check result because threshold not met, silence set to expire after some time or silence to expire on resolve")
+				fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " has been active since " + n.String())
+			}
+
+			// Handle cases where the silenced entry should not be flagged
+			// To Fix: not getting into these else if statements.
+
+			if int(duration.Seconds()) < threshold && not_too_old == "An entry for " {
+				fmt.Println(not_too_old + silenced3[i].Metadata.Name + " was not flagged because the threshold of not met")
+			} else if int(duration.Seconds()) < threshold {
+
+			}
+
+			if silenced3[i].Expire != int(-1) && not_too_old == "An entry for " {
+				fmt.Println(not_too_old + silenced3[i].Metadata.Name + " was not flagged as the silence is set to expire after some time")
+			} else if silenced3[i].Expire != int(-1) {
+				fmt.Println("you will expire after sometime as well")
+
+			}
+
+			if silenced3[i].Expire_on_resolve && not_too_old == "An entry for " {
+				fmt.Println(not_too_old + silenced3[i].Metadata.Name + " was not flagged as the silence is to to expire once the  ")
+			} else if silenced3[i].Expire_on_resolve {
+				fmt.Println("you will expire on resolve as well")
+
 			}
 
 		}
