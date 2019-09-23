@@ -157,15 +157,6 @@ func checkIfSilencedOld(silenced3 []Silenced) {
 				active_entry = true
 			}
 
-			// Would like to get this output into debug output only. As is, not helpful in all check output.
-			// if int(duration.Seconds()) < threshold {
-			// 	fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " was not flagged because the threshold of not met")
-			// } else if silenced3[i].Expire != int(-1) {
-			// 	fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " was not flagged as the silence is set to expire after some time")
-			// } else if silenced3[i].Expire_on_resolve {
-			// 	fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " was not flagged as the silence is to to expire once the event resolves")
-			// }
-
 		}
 
 		if !active_entry {
