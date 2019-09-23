@@ -146,42 +146,35 @@ func querySilenced(token string, silenced2 *[]Silenced) {
 func checkIfSilencedOld(silenced3 []Silenced) {
 
 	if len(silenced3) > 0 {
+		active_entry := false
 		for i := 0; i < len(silenced3); i++ {
 			n := time.Unix(int64(silenced3[i].Begin), 0)
 			duration := time.Since(n)
-			not_too_old := "An entry for "
 
-			fmt.Println(n)
-
+			// Catch silence entries that will never resolve.
 			if int(duration.Seconds()) > threshold && silenced3[i].Expire == int(-1) && !silenced3[i].Expire_on_resolve {
 				fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " has been active since " + n.String())
+				active_entry = true
 			}
 
-			// Handle cases where the silenced entry should not be flagged
-			// To Fix: not getting into these else if statements.
-
-			if int(duration.Seconds()) < threshold && not_too_old == "An entry for " {
-				fmt.Println(not_too_old + silenced3[i].Metadata.Name + " was not flagged because the threshold of not met")
-			} else if int(duration.Seconds()) < threshold {
-
-			}
-
-			if silenced3[i].Expire != int(-1) && not_too_old == "An entry for " {
-				fmt.Println(not_too_old + silenced3[i].Metadata.Name + " was not flagged as the silence is set to expire after some time")
-			} else if silenced3[i].Expire != int(-1) {
-				fmt.Println("you will expire after sometime as well")
-
-			}
-
-			if silenced3[i].Expire_on_resolve && not_too_old == "An entry for " {
-				fmt.Println(not_too_old + silenced3[i].Metadata.Name + " was not flagged as the silence is to to expire once the  ")
-			} else if silenced3[i].Expire_on_resolve {
-				fmt.Println("you will expire on resolve as well")
-
-			}
+			// Would like to get this output into debug output only. As is, not helpful in all check output.
+			// if int(duration.Seconds()) < threshold {
+			// 	fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " was not flagged because the threshold of not met")
+			// } else if silenced3[i].Expire != int(-1) {
+			// 	fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " was not flagged as the silence is set to expire after some time")
+			// } else if silenced3[i].Expire_on_resolve {
+			// 	fmt.Println("A silenced entry " + silenced3[i].Metadata.Name + " was not flagged as the silence is to to expire once the event resolves")
+			// }
 
 		}
-		os.Exit(1)
+
+		if !active_entry {
+			fmt.Println("Good news nobody, no stale found!")
+			os.Exit(0)
+
+		} else {
+			os.Exit(1)
+		}
 	} else {
 		fmt.Println("Good news nobody, the silenced endpoint is empty!")
 		os.Exit(0)
