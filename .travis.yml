@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.12.x
+- 1.13.x
 script:
 - go test -v -race ./...
 
@@ -16,10 +16,10 @@ deploy:
       tags: true
       condition: $TRAVIS_OS_NAME = linux
 
-after_deploy:
-  - git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai
-  - bonsai/generate-sha512sum.sh
-  - bonsai/github-release-upload.sh github_api_token=$GITHUB_TOKEN repo_slug="$TRAVIS_REPO_SLUG" tag="${TRAVIS_TAG}" filename="dist/$(cat dist/sha512_file)"
+# after_deploy:
+#   - git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai
+#   - bonsai/generate-sha512sum.sh
+#   - bonsai/github-release-upload.sh github_api_token=$GITHUB_TOKEN repo_slug="$TRAVIS_REPO_SLUG" tag="${TRAVIS_TAG}" filename="dist/$(cat dist/sha512_file)"
 
 env:
   global:
