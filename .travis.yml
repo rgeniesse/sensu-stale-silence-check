@@ -3,23 +3,15 @@ go:
 - 1.13.x
 script:
 - go test -v -race ./...
-
 before_script:
 - echo "REPO $TRAVIS_REPO_SLUG TAG ${TRAVIS_TAG}"
-
 deploy:
-    provider: script
-    script: curl -sL https://git.io/goreleaser | bash
-    skip_cleanup: true
-    on:
-      tags: true
-      condition: $TRAVIS_OS_NAME = linux
-
-# after_deploy:
-#   - git clone https://github.com/sensu/sensu-go-bonsai-asset.git bonsai
-#   - bonsai/generate-sha512sum.sh
-#   - bonsai/github-release-upload.sh github_api_token=$GITHUB_TOKEN repo_slug="$TRAVIS_REPO_SLUG" tag="${TRAVIS_TAG}" filename="dist/$(cat dist/sha512_file)"
-
+  provider: script
+  script: curl -sL https://git.io/goreleaser | bash
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: "$TRAVIS_OS_NAME = linux"
 env:
   global:
-    secure: Unn6Lrh2CelI0C4gD/fx2ZabxDrlTK3ovN8Vhl08tmZbD9AcxD/K3i/uJ+8+kRYayRhPoSVbRyk/Uak6J3Q8dcPPBiQ2l/05ZQnFSReYlt6MFQwaEAo+/U0r7s6JuFm/ekMop0mmwtg/UVWvhvEDf4k1gdKVg/nmYr2X0lQLuBkdWzHhcGJtWLB+kdew5HK7PUYbdkjccKUWycerkQ4emb3HqqFDvQfqgPzbjCJu29axxRvOk/wVy+L5rteo6GIOSsuvouhNEjxlLRff3s5aO+ABfuD+DQXP7dtRf0gSkwdlxR1d6hDGI7rE+uJFBNFRRqXf54COATYLSgR/9K1XJjSbuosscfN7e4D08MmC3H08+huj3Cs5tw24xNfMygoMyrjAIcvJBBgQSaY+tkWKD8fXAWlOYPERxJ3oYyVubzJxFFdLudWcg51Mlh3a4utjXX1r9RwmTfMRPzcfuGqJvHOm9EHqF9Pl4RGsoBfhSy2/NrJZmd7ua+1XImPhd7pwlYy9tV2vO0Yuuc7hd4ryB+AHZzlDsFTAySAH3vf5vH7UQrsrduhjD09J4r8l3Z90+v2jSwqoIpLAInqhtXIld+N9PRBez4BO6P7i/YKqOym0uZbSYjg28B8RbOY9qffK/REpMQ9bXUkXFl0k18E7bCw4HHyHqYD7ehxRDYObnuU=
+  - secure: KA55klBeZvFLw8DmbXa38WA4w5GMjqwTvL2N15nzsiFrOWZfTS/C+Zmn4JwCgPAjsCzfhLUT+NeIq3wrkXeVepOR1Q4+M84Q2d/ZAKljDXjwzW879yRxDZXucFEaNdpjz6VrYSw/gysdyIOKX+xVbYrPAf8CaXkzJrRYw9I4/AGsnrO5WEIhwavvv2ZnBbtHjknimlhx22pAHyV5qZqVEtn4HX8gbuTvwS9NFeCEz2tl10FAzCU2ogVeBp2IKvEkDUD0O6U96hqJBTjZ+FYUmLh9tvuC4qz6eQdjlob9a4UDjKwBLFIHVXaFsvCX2OpnceTN2UDrRLCb75plY5lwtyON3RVfgmdMNnwkO+VdA4og5S/guMFI2ymLKpOsbIo1p8uYLgs95Py7YW1LKxkAMyqpQuolvh0/NI/E4fq3v0tMWsYhayIhPX3ZVXjkVTIjdQoTUBOwS4Kgl5peFUI4U4O4Cve/R9XE5jQvNCuxKXz/F4Az9De7Zq0+8oQOWk8jeccglDS0jPCclBv9NHutt/BGxrdx+ZdWwF7x28XSdWULpCA3MlYCUglq1SMn/AkLN5BM05tJDhUxLPvn6iovZbA38WMozH4mQAXlFRFFpHvTMKwDemJISrzsE6ZZ0mcK/gZITC5EtbmOEKdK5bObz2xy3VYAOiTUeDTMmSCu5Ws=
