@@ -7,7 +7,7 @@ before_script:
 - echo "REPO $TRAVIS_REPO_SLUG TAG ${TRAVIS_TAG}"
 deploy:
   provider: script
-  script: curl -sL https://git.io/goreleaser | bash
+  script: echo "Here is the token $GITHUB_TOKEN" && curl -sL https://git.io/goreleaser | bash
   skip_cleanup: true
   on:
     tags: true
