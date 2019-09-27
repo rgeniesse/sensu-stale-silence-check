@@ -8,7 +8,6 @@ before_script:
 - echo "REPO $TRAVIS_REPO_SLUG TAG ${TRAVIS_TAG}"
 
 deploy:
-  - #goreleaser
     provider: script
     script: curl -sL https://git.io/goreleaser | bash
     skip_cleanup: true
@@ -23,4 +22,4 @@ deploy:
 
 env:
   global:
-    secure: IYkrJHj60mBHqaJ1PQpD5EXzJuEU28IAboZG3u+fi99Q6II97YpLgIUkifjrN9OQilvpNfzUq2xPaTvlkHq8AJt+UEd3YeZxaQa2ylGom458Kj3iMnM52WqRW1HesXPN7rJkuDEPzYepY/7tNu2/HaJbilFXiV7D4C4lU2LBMeAbBYH9NsQXewNduB7o0afAqJ/NnjY7/fUkI/M26zDYa9peT101Sx55vtJi9AgQwIx8HRuO5hWXP/yB1YdXWfZTaoBqE9p3WSZbV1TFYEZDQJyXxEOtCMoZ//jrNhxIldmzJ6gfgQ0F8ouPk/PobVKV7pFSKidIMnkcELiM6M0fD9Ohd9F+PROibtFsuGi4H0fMRrQnECQQnVNMLm+CINpcElGOc/+axcYymEo+kcZ3yG4F0lakdbYE5t2tMPrUbDNZH8xT57HDJ9btklMt2PeZLqbWt5ksaBX6iQ6gRVHdgCoVTtAIcF4mUd/ukuX1MxhWwOcGuEnSgiwa7ZDFKeum+8Yjn5OOsEdD78ekqLNjeK/EozvxIlIIaGvrZxSnzAEUx9isKzWY5+r0BhvchnS4WXin/ZuzdElkRDJ1SFGZ7eCQEBUZ+YVSpuYI+7lMPzeMfoFlBgGeimnwE1ArJFIS39y5J44m4MdDTvGfKvDX1ia+tCxOqcD/QXaa1Ks1z18=
+    secure: Unn6Lrh2CelI0C4gD/fx2ZabxDrlTK3ovN8Vhl08tmZbD9AcxD/K3i/uJ+8+kRYayRhPoSVbRyk/Uak6J3Q8dcPPBiQ2l/05ZQnFSReYlt6MFQwaEAo+/U0r7s6JuFm/ekMop0mmwtg/UVWvhvEDf4k1gdKVg/nmYr2X0lQLuBkdWzHhcGJtWLB+kdew5HK7PUYbdkjccKUWycerkQ4emb3HqqFDvQfqgPzbjCJu29axxRvOk/wVy+L5rteo6GIOSsuvouhNEjxlLRff3s5aO+ABfuD+DQXP7dtRf0gSkwdlxR1d6hDGI7rE+uJFBNFRRqXf54COATYLSgR/9K1XJjSbuosscfN7e4D08MmC3H08+huj3Cs5tw24xNfMygoMyrjAIcvJBBgQSaY+tkWKD8fXAWlOYPERxJ3oYyVubzJxFFdLudWcg51Mlh3a4utjXX1r9RwmTfMRPzcfuGqJvHOm9EHqF9Pl4RGsoBfhSy2/NrJZmd7ua+1XImPhd7pwlYy9tV2vO0Yuuc7hd4ryB+AHZzlDsFTAySAH3vf5vH7UQrsrduhjD09J4r8l3Z90+v2jSwqoIpLAInqhtXIld+N9PRBez4BO6P7i/YKqOym0uZbSYjg28B8RbOY9qffK/REpMQ9bXUkXFl0k18E7bCw4HHyHqYD7ehxRDYObnuU=
