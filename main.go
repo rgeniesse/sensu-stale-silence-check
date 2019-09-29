@@ -44,7 +44,7 @@ var (
 func configureRootCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "sensu-stale-silence-check",
-		Short: "A Sensu Go check plugin to send out reminders about stale silenced entries",
+		Short: "A Sensu Go check plugin for finding stale silence entries",
 		RunE:  run,
 	}
 
