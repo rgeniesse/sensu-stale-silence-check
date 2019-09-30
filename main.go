@@ -1,6 +1,3 @@
-// TODO:
-// Comment code
-
 package main
 
 import (
@@ -160,7 +157,7 @@ func checkIfSilencedOld(silenced3 []Silenced) {
 		}
 
 		if !active_entry {
-			fmt.Println("Good news nobody, no stale found!")
+			fmt.Println("Good news nobody, no stale entries found!")
 			os.Exit(0)
 
 		} else {
